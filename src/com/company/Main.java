@@ -1,7 +1,12 @@
 package com.company;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.Scanner;
 import static java.lang.Math.*;
@@ -9,7 +14,7 @@ import static java.lang.Math.*;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
 
         Scanner scan = new Scanner(System.in);
         Calculator calculator = new Calculator();
@@ -19,6 +24,9 @@ public class Main {
         //BigInteger b2 = new BigInteger("3");
         BigInteger b2 =BigInteger.probablePrime(1024, rand);
 
+        Encryption ee = new Encryption();
+        byte[] e1 = ee.encrypt();
+        ee.decrypt(e1);
         System.out.println("Wpisz mała liczbe nr 1");
         BigInteger l1 = scan.nextBigInteger();
         System.out.println("Wpisz mała liczbe nr 2");
@@ -33,6 +41,10 @@ public class Main {
         BigInteger f =calculator.sub(b1,b2);
         BigInteger g =calculator.mul(b1,b2);
         BigInteger h =calculator.mod(b1,b2);
+
+        //
+        //ee.getPublicKey();
+
         /*
         int wybor = menu();
 
