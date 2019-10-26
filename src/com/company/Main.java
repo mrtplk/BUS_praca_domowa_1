@@ -3,11 +3,8 @@ package com.company;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.io.*;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -16,8 +13,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
-import static java.lang.Math.*;
-
 
 public class Main {
 
@@ -27,19 +22,19 @@ public class Main {
         Calculator calculator = new Calculator();
         Random rand = new Random();
 
-        Boolean carryOn = true;
+        boolean carryOn = true;
 
         while(carryOn) {
             int choice = menu();
             switch (choice) {
                 case 0:
                     carryOn=false;
-
                     break;
+
                 case 1:
                     System.out.println("Wpisz mała liczbe nr 1");
                     BigInteger l1 = scan.nextBigInteger();
-                    System.out.println("Wpisz mała liczbe nr 2");
+                    System.out.println("Wpisz mała liczbe nr 2 (musi to być liczba pierwsza, np 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 itd.)");
                     BigInteger l2 = scan.nextBigInteger();
 
                     BigInteger a = calculator.add(l1, l2);
@@ -52,6 +47,7 @@ public class Main {
                     System.out.println("Wynik mnożenia: " + c);
                     System.out.println("Liczenie odwrotności elementu ciała (liczby) modulo duża liczba pierwsza p: " + d);
 
+                    carryOn=false;
                     break;
 
                 case 2:
@@ -70,48 +66,41 @@ public class Main {
                     System.out.println("Wynik mnożenia: " + g);
                     System.out.println("Liczenie odwrotności elementu ciała (liczby) modulo duża liczba pierwsza p: " + h);
 
+                    carryOn=false;
                     break;
 
                 case 3:
-                    //Encryption ee = new Encryption();
-                    //byte[] e1 = ee.encrypt();
-                    //ee.decrypt(e1);
-                    //final String secretKey = "ssshhhhhhhhhhh!!!!";
                     String secretKey = readingFromFile("key.txt");
                     String secretKey2 = readingFromFile("key2.txt");
                     System.out.println("Nasz klucz: " + secretKey);
 
-                    //String originalString = readingFromFile("piesek.txt");
-                    //System.out.print(originalString);
-
                     byte[] data = fileToBytes("piesek.jpg");
                     System.out.println("Nasz plik przed zaszyfrowaniem:");
                     System.out.println(Arrays.toString(data));
-                    //String encryptedString = AES.encrypt(originalString, secretKey) ;
-                   // String decryptedString = AES.decrypt(encryptedString, secretKey) ;
+
                     System.out.println("Nasz plik po zaszyfrowaniu: ");
                     byte[] encryptedBytes = AES.encrypt_bytes(data, secretKey);
-                    //encryptedBytes[5]=-6;
+
+                    //ODKOMENTOWAC PODPUNKT 2 - BLAD W PLIKU ZASZYFROWAYM
+                    //encryptedBytes[5]=112;
+
                     System.out.println(Arrays.toString(encryptedBytes));
                     System.out.println("Nasz plik po odszyfrowaniu: ");
                     byte[] decryptedBytes = AES.decrypt_bytes(encryptedBytes, secretKey2);
 
-                    //System.out.println(Arrays.toString(decryptedBytes));
+                    //ZAKOMENTOWAC PODPUNKT 2
                     saveBytesAsInage("piesek2.jpg",decryptedBytes);
                     System.out.println(Arrays.toString(decryptedBytes));
 
-                    //System.out.println(originalString);
-                    //saveToFILE("piesek2.txt",decryptedString);
-                    //System.out.println("Zaszyforwane dane: " + encryptedString);
-                    //System.out.println("Odszyfrowane dane " + decryptedString);
                     carryOn=false;
                     break;
                 case 4:
                     String originalString = readingFromFile("message.txt");
                     System.out.print(originalString);
-                    //byte[] msg = fileToBytes("piesek.jpg");
+
                     byte [] msg = originalString.getBytes();
-                    msg[2] = 105;
+                    //ODKOMENTOWAC PODPUNKT 2
+                    //msg[2] = 105;
                     System.out.println("Wiadomosc do obliczenia funkcji skrótu: ");
                     System.out.println(Arrays.toString(msg));
                     MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -126,9 +115,8 @@ public class Main {
                         hexString.append(Integer.toHexString(0xFF & digest[i]));
                     }
                     System.out.println("Hex format: "+ hexString.toString());
+
                     carryOn=false;
-
-
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + choice);
@@ -149,7 +137,6 @@ public class Main {
 
         Scanner in = new Scanner(System.in);
         int w = in.nextInt();
-
         return w;
     }
     public static String readingFromFile(String path) throws IOException {
@@ -165,45 +152,18 @@ public class Main {
         String result = str.toString();
         return result;
     }
-/*
-    public static void saveToFILE (String path, byte[] what) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(path));
-        writer.write(what);
-        writer.close();
-    }
-*/
-    public static byte[] fileToBytes(String filename) throws IOException
-    {
-        /*
 
-            File imgPath = new File(filename);
-            BufferedImage bufferedImage = ImageIO.read(imgPath);
-
-            // get DataBufferBytes from Raster
-            WritableRaster raster = bufferedImage .getRaster();
-            DataBufferByte data   = (DataBufferByte) raster.getDataBuffer();
-
-            return ( data.getData() );
-            */
+    public static byte[] fileToBytes(String filename) throws IOException {
             BufferedImage bImage = ImageIO.read(new File(filename));
-
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ImageIO.write(bImage, "jpg", bos);
             byte [] data = bos.toByteArray();
             return data;
-
         }
 
     public static void saveBytesAsInage(String filename, byte[] what) throws IOException {
         ByteArrayInputStream bis = new ByteArrayInputStream(what);
         BufferedImage image = ImageIO.read(bis);
         ImageIO.write(image, "jpg", new File(filename));
-
-
     }
-
-
-
-
-
 }
