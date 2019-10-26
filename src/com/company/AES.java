@@ -47,6 +47,24 @@ public class AES {
         return null;
     }
 
+    public static byte[] encrypt_bytes(byte[] byteToEncrypt, String secret)
+    {
+        try
+        {
+            setKey(secret);
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding"); //This class provides the functionality of a cryptographic cipher for encryption and decryption.
+            //In order to create a Cipher object, the application calls the Cipher's getInstance method, and passes the name of the requested transformation to it. Optionally, the name of a provider may be specified.
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return cipher.doFinal(byteToEncrypt); //static methods for obtaining encoders and decoders for the Base64 encoding scheme.
+            //Finishes a multiple-part encryption or decryption operation, depending on how this cipher was initialized. - doFinal
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+    }
+
     public static String decrypt(String strToDecrypt, String secret)
     {
         try
@@ -60,6 +78,23 @@ public class AES {
         {
             System.out.println("Error while decrypting: " + e.toString());
         }
+        return null;
+    }
+
+    public static byte[] decrypt_bytes(byte[] byteToDecrypt, String secret)
+    {
+        try
+        {
+            setKey(secret);
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return cipher.doFinal(byteToDecrypt);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        System.out.println("Zły klucz!!!!!");
         return null;
     }
 

@@ -3,10 +3,17 @@ package com.company;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 import java.io.*;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 import static java.lang.Math.*;
@@ -69,21 +76,59 @@ public class Main {
                     //Encryption ee = new Encryption();
                     //byte[] e1 = ee.encrypt();
                     //ee.decrypt(e1);
-                    final String secretKey = "ssshhhhhhhhhhh!!!!";
+                    //final String secretKey = "ssshhhhhhhhhhh!!!!";
+                    String secretKey = readingFromFile("key.txt");
+                    String secretKey2 = readingFromFile("key2.txt");
+                    System.out.println("Nasz klucz: " + secretKey);
 
+                    //String originalString = readingFromFile("piesek.txt");
+                    //System.out.print(originalString);
 
-                    String originalString = readingFromFile("/Users/marta/IdeaProjects/BUS_praca_domowa_1/src/com/company/message.txt");
-                    System.out.print(originalString);
+                    byte[] data = fileToBytes("piesek.jpg");
+                    System.out.println("Nasz plik przed zaszyfrowaniem:");
+                    System.out.println(Arrays.toString(data));
+                    //String encryptedString = AES.encrypt(originalString, secretKey) ;
+                   // String decryptedString = AES.decrypt(encryptedString, secretKey) ;
+                    System.out.println("Nasz plik po zaszyfrowaniu: ");
+                    byte[] encryptedBytes = AES.encrypt_bytes(data, secretKey);
+                    //encryptedBytes[5]=-6;
+                    System.out.println(Arrays.toString(encryptedBytes));
+                    System.out.println("Nasz plik po odszyfrowaniu: ");
+                    byte[] decryptedBytes = AES.decrypt_bytes(encryptedBytes, secretKey2);
 
-                    String encryptedString = AES.encrypt(originalString, secretKey) ;
-                    String decryptedString = AES.decrypt(encryptedString, secretKey) ;
+                    //System.out.println(Arrays.toString(decryptedBytes));
+                    saveBytesAsInage("piesek2.jpg",decryptedBytes);
+                    System.out.println(Arrays.toString(decryptedBytes));
 
                     //System.out.println(originalString);
-                    System.out.println("Zaszyforwane dane: " + encryptedString);
-                    System.out.println("Odszyfrowane dane " + decryptedString);
+                    //saveToFILE("piesek2.txt",decryptedString);
+                    //System.out.println("Zaszyforwane dane: " + encryptedString);
+                    //System.out.println("Odszyfrowane dane " + decryptedString);
                     carryOn=false;
                     break;
                 case 4:
+                    String originalString = readingFromFile("message.txt");
+                    System.out.print(originalString);
+                    //byte[] msg = fileToBytes("piesek.jpg");
+                    byte [] msg = originalString.getBytes();
+                    msg[2] = 105;
+                    System.out.println("Wiadomosc do obliczenia funkcji skrótu: ");
+                    System.out.println(Arrays.toString(msg));
+                    MessageDigest md = MessageDigest.getInstance("SHA-256");
+                    md.update(msg);
+                    byte [] digest = md.digest();
+                    System.out.println("Skrót wiadomości: ");
+                    System.out.println(Arrays.toString(digest));
+
+                    StringBuffer hexString = new StringBuffer();
+                    for(int i = 0; i<digest.length; i++)
+                    {
+                        hexString.append(Integer.toHexString(0xFF & digest[i]));
+                    }
+                    System.out.println("Hex format: "+ hexString.toString());
+                    carryOn=false;
+
+
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + choice);
@@ -120,5 +165,45 @@ public class Main {
         String result = str.toString();
         return result;
     }
+/*
+    public static void saveToFILE (String path, byte[] what) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+        writer.write(what);
+        writer.close();
+    }
+*/
+    public static byte[] fileToBytes(String filename) throws IOException
+    {
+        /*
+
+            File imgPath = new File(filename);
+            BufferedImage bufferedImage = ImageIO.read(imgPath);
+
+            // get DataBufferBytes from Raster
+            WritableRaster raster = bufferedImage .getRaster();
+            DataBufferByte data   = (DataBufferByte) raster.getDataBuffer();
+
+            return ( data.getData() );
+            */
+            BufferedImage bImage = ImageIO.read(new File(filename));
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ImageIO.write(bImage, "jpg", bos);
+            byte [] data = bos.toByteArray();
+            return data;
+
+        }
+
+    public static void saveBytesAsInage(String filename, byte[] what) throws IOException {
+        ByteArrayInputStream bis = new ByteArrayInputStream(what);
+        BufferedImage image = ImageIO.read(bis);
+        ImageIO.write(image, "jpg", new File(filename));
+
+
+    }
+
+
+
+
 
 }
